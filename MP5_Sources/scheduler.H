@@ -55,7 +55,14 @@
 /*--------------------------------------------------------------------------*/
 
 class Scheduler {
-
+private: 
+  typedef struct Queue{
+    Thread* thread;
+    struct Queue* next;  
+  }myQ;
+  
+  myQ* rdyQTail; 
+  myQ* rdyQHead; 
   /* The scheduler may need private members... */
   
 public:
@@ -92,5 +99,22 @@ public:
 };
 	
 	
+class RRScheduler:public Scheduler{
+private: 
+  typedef struct Queue{
+    Thread* thread;
+    struct Queue* next;  
+  }myQ;
+  
+  myQ* rdyQTail; 
+  myQ* rdyQHead; 
+  unsigned eoq;
 
+public:
+  RRScheduler(unsigned _eoq);
+  virtual void yield();
+  virtual void resume(Thread * _thread);
+  virtual void add(Thread * _thread);
+  virtual void terminate(Thread * _thread);
+};
 #endif

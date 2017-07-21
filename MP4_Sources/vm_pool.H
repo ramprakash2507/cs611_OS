@@ -30,6 +30,10 @@
 /*--------------------------------------------------------------------------*/
 /* DATA STRUCTURES */
 /*--------------------------------------------------------------------------*/
+typedef struct vPool{
+    void * pool;
+    struct vPool * next;
+}vmPool;         // virtual memory pool linked list node
 
 /* Forward declaration of class PageTable */
 /* We need this to break a circular include sequence. */
@@ -42,8 +46,16 @@ class PageTable;
 class VMPool { /* Virtual Memory Pool */
 private:
    /* -- DEFINE YOUR VIRTUAL MEMORY POOL DATA STRUCTURE(s) HERE. */
-
+    typedef struct mem_region{
+        unsigned long start_page;
+        unsigned long size;
+    }memList;
+    unsigned long base_address;
+    unsigned int size;
+    ContFramePool * framePool;
+    PageTable * page_table;
 public:
+   vmPool poolNode; 
    VMPool(unsigned long  _base_address,
           unsigned long  _size,
           ContFramePool *_frame_pool,

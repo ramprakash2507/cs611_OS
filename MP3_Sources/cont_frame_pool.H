@@ -33,6 +33,10 @@
 /*--------------------------------------------------------------------------*/
 
 /* -- (none) -- */
+typedef struct Pool{
+    void * pool;
+    struct Pool * next;
+}fPool;         // frame pool linked list node
 
 /*--------------------------------------------------------------------------*/
 /* C o n t F r a m e   P o o l  */
@@ -43,11 +47,20 @@ class ContFramePool {
 private:
     /* -- DEFINE YOUR CONT FRAME POOL DATA STRUCTURE(s) HERE. */
     
+    unsigned char * bitmap;        // We implement the simple frame pool with a bitmap
+    unsigned long base_frame_no;
+    unsigned long nframes;
+    unsigned int  nFreeFrames;
+    unsigned long info_frame_no;
+    unsigned int  n_info_frames;
+    fPool poolNode;               // this frame pool node
+    void release_frame(unsigned long _first_frame_no);  //Pool specific release frame
 public:
 
     // The frame size is the same as the page size, duh...    
     static const unsigned int FRAME_SIZE = Machine::PAGE_SIZE; 
-
+    static fPool * fPoolHead;   //frame pool global linked list elements
+    static fPool * fPoolTail;
     ContFramePool(unsigned long _base_frame_no,
                   unsigned long _n_frames,
                   unsigned long _info_frame_no,
@@ -57,7 +70,7 @@ public:
      frame pool.
      _base_frame_no: Number of first frame managed by this frame pool.
      _n_frames: Size, in frames, of this frame pool.
-     EXAMPLE: If _base_frame_no is 16 and _nframes is 4, this frame pool manages
+     EXAMPLE: If _base_frame_no is 16 and _n_frames is 4, this frame pool manages
      physical frames numbered 16, 17, 18 and 19.
      _info_frame_no: Number of the first frame that should be used to store the
      management information for the frame pool.

@@ -23,7 +23,7 @@
 
 /* -- COMMENT/UNCOMMENT THE FOLLOWING LINE TO EXCLUDE/INCLUDE SCHEDULER CODE */
 
-//#define _USES_SCHEDULER_
+#define _USES_SCHEDULER_
 /* This macro is defined when we want to force the code below to use
    a scheduler.
    Otherwise, no scheduler is used, and the threads pass control to each
@@ -33,7 +33,7 @@
 
 /* -- UNCOMMENT THE FOLLOWING LINE TO MAKE THREADS TERMINATING */
 
-//#define _TERMINATING_FUNCTIONS_
+#define _TERMINATING_FUNCTIONS_
 /* This macro is defined when we want the thread functions to return, and so
    terminate their thread.
    Otherwise, the thread functions don't return, and the threads run forever.
@@ -121,7 +121,7 @@ void pass_on_CPU(Thread * _to_thread) {
         /* We use a scheduler. Instead of dispatching to the next thread,
            we pre-empt the current thread by putting it onto the ready
            queue and yielding the CPU. */
-
+        Machine::disable_interrupts();
         SYSTEM_SCHEDULER->resume(Thread::CurrentThread());
         SYSTEM_SCHEDULER->yield();
 #endif
@@ -160,7 +160,7 @@ void fun1() {
 void fun2() {
     Console::puts("Thread: "); Console::puti(Thread::CurrentThread()->ThreadId()); Console::puts("\n");
     Console::puts("FUN 2 INVOKED!\n");
-
+    
 #ifdef _TERMINATING_FUNCTIONS_
     for(int j = 0; j < 10; j++) 
 #else
@@ -178,7 +178,6 @@ void fun2() {
 void fun3() {
     Console::puts("Thread: "); Console::puti(Thread::CurrentThread()->ThreadId()); Console::puts("\n");
     Console::puts("FUN 3 INVOKED!\n");
-
     for(int j = 0;; j++) {
         Console::puts("FUN 3 IN BURST["); Console::puti(j); Console::puts("]\n");
         for (int i = 0; i < 10; i++) {
@@ -248,15 +247,12 @@ int main() {
                  we enable interrupts correctly. If we forget to do it,
                  the timer "dies". */
 
-    SimpleTimer timer(100); /* timer ticks every 10ms. */
-    InterruptHandler::register_handler(0, &timer);
-    /* The Timer is implemented as an interrupt handler. */
 
 #ifdef _USES_SCHEDULER_
 
     /* -- SCHEDULER -- IF YOU HAVE ONE -- */
  
-    SYSTEM_SCHEDULER = new Scheduler();
+    SYSTEM_SCHEDULER = new RRScheduler(50);
 
 #endif
 
